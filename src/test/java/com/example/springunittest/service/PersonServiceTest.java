@@ -1,6 +1,8 @@
 package com.example.springunittest.service;
 
+import com.example.springunittest.convert.Converter;
 import com.example.springunittest.dto.PersonDTO;
+import com.example.springunittest.excetion.UserNotFoundException;
 import com.example.springunittest.model.Address;
 import com.example.springunittest.model.Person;
 import com.example.springunittest.repo.AddressRepository;
@@ -13,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,6 +31,8 @@ class PersonServiceTest {
     private PersonRepository personRepository;
     @Mock
     private AddressRepository addressRepository;
+    @Mock
+    private Converter converter;
 
     @Test
     public void whenSaveCalledWithValidRequest_itShouldReturnValidPersonDto() throws Exception{
@@ -56,7 +61,7 @@ class PersonServiceTest {
         });
     }
     @Test
-    public void whenGetAllCalledWithoutAddressList_itShouldReturnPeronDtoList() throws Exception{
+    public void whenGetAllCalledWithoutAddressList_itShouldReturnPersonDtoList() throws Exception{
         Person person = new Person();
         person.setId(1L);
         person.setName("Test-Name");
@@ -68,7 +73,7 @@ class PersonServiceTest {
         assertEquals(personDTOList.size(),1);
     }
     @Test
-    public void whenGetAllCalled_itShouldReturnPeronDtoList() throws Exception{
+    public void whenGetAllCalled_itShouldReturnPersonDtoList() throws Exception{
         Person person = new Person();
         person.setId(1L);
         person.setName("Test-Name");
@@ -80,6 +85,48 @@ class PersonServiceTest {
 
         assertEquals(personDTOList.size(),1);
         assertEquals(personDTOList.get(0).getAddressList().size(),1);
+    }
+
+    @Test
+    public void whenFindPersonByIdCalled_itShouldReturnPerson() throws Exception{
+        Long id = 1L;
+        Person person = new Person();
+        person.setId(id);
+        person.setName("Test-Name");
+        person.setLastname("Test-Lastname");
+
+        when(personRepository.findById(id)).thenReturn(Optional.of(person));
+
+        Person result = personService.findPersonById(id);
+
+        assertEquals(result, person);
+
+    }
+    @Test
+    public void testFindByPersonId_whenPersonIdDoesNotExist_itShouldThrowUserNotFoundException() throws Exception{
+
+        when(personRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> personService.findPersonById(1L));
+
+    }
+
+
+    @Test
+    public void whenGetByIdCalled_itShouldReturnPersonDto(){
+        Long id = 1L;
+        Person person = new Person();
+        person.setId(id);
+        person.setName("Test-Name");
+        person.setLastname("Test-Lastname");
+
+
+        when(personRepository.getById(id)).thenReturn(person);
+
+        PersonDTO result = personService.getById(id);
+
+        assertEquals(result.getId(), person.getId());
+
     }
 
 

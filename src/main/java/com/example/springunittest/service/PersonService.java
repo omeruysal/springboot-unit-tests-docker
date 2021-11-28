@@ -1,10 +1,12 @@
 package com.example.springunittest.service;
 
 import com.example.springunittest.dto.PersonDTO;
+import com.example.springunittest.excetion.UserNotFoundException;
 import com.example.springunittest.model.Address;
 import com.example.springunittest.model.Person;
 import com.example.springunittest.repo.AddressRepository;
 import com.example.springunittest.repo.PersonRepository;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -68,6 +70,20 @@ public class PersonService {
 
         });
         return personDTOList;
+    }
+
+    public Person findPersonById(Long id ){
+        return personRepository.findById(id).orElseThrow(() -> new UserNotFoundException("The person could find by id : "+ id));
+    }
+
+    public PersonDTO getById(Long id){
+        Person person = personRepository.getById(id);
+        PersonDTO personDTO = new PersonDTO();
+        personDTO.setId(person.getId());
+        personDTO.setName(person.getName());
+        personDTO.setLastname(person.getLastname());
+
+        return personDTO;
     }
 
 }

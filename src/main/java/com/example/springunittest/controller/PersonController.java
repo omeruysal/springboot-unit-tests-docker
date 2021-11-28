@@ -5,6 +5,7 @@ import com.example.springunittest.service.PersonService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.ws.Response;
 import java.util.List;
 
 @RestController
@@ -18,13 +19,16 @@ public class PersonController {
 
 
     @GetMapping
-    public ResponseEntity<List<PersonDTO>> getAll(){
-        return ResponseEntity.ok(personService.getAll());
-    }
+    public ResponseEntity<List<PersonDTO>> getAll(){ return ResponseEntity.ok(personService.getAll()); }
 
     @PostMapping
-    public ResponseEntity<PersonDTO> save(@RequestBody PersonDTO personDTO){
+    public ResponseEntity<PersonDTO> save( @RequestBody PersonDTO personDTO){
         return ResponseEntity.ok(personService.save(personDTO));
 
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PersonDTO> getById(@RequestParam("id") Long id){
+        return ResponseEntity.ok(personService.getById(id));
     }
 }
