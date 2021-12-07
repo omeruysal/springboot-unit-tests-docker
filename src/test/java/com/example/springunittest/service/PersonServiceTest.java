@@ -7,6 +7,7 @@ import com.example.springunittest.model.Address;
 import com.example.springunittest.model.Person;
 import com.example.springunittest.repo.AddressRepository;
 import com.example.springunittest.repo.PersonRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 
@@ -34,13 +36,25 @@ class PersonServiceTest {
     @Mock
     private Converter converter;
 
-    @Test
-    public void whenSaveCalledWithValidRequest_itShouldReturnValidPersonDto() throws Exception{
-        PersonDTO personDto = new PersonDTO();
+    private static Person person;
+    private static PersonDTO personDto;
+
+    @BeforeEach
+    public void setUp(){
+        person = new Person();
+        person.setId(1L);
+        person.setName("Test-Name");
+        person.setLastname("Test-Lastname");
+        person.setAddressList((Collections.singletonList(new Address(1L,  "Istanbul", Address.AddressType.HOME,  true))));
+
+        personDto = new PersonDTO();
         personDto.setName("Test-Name"); // Objemize test bilgilerimizi setleriz
         personDto.setLastname("Test-Lastname");
         personDto.setAddressList(Arrays.asList("Test-Address-1"));
-        Person person = mock(Person.class);
+    }
+
+    @Test
+    public void whenSaveCalledWithValidRequest_itShouldReturnValidPersonDto() throws Exception{
 
         when(personRepository.save(ArgumentMatchers.any(Person.class))).thenReturn(person);
         when(person.getId()).thenReturn((1L));
@@ -52,9 +66,6 @@ class PersonServiceTest {
     }
     @Test
     public void whenSaveCalledWithBlankName_itShouldReturnException() throws Exception{
-        PersonDTO personDto = new PersonDTO();
-        personDto.setLastname("Test-Lastname");
-        personDto.setAddressList(Arrays.asList("Test-Address-1"));
 
         assertThrows( IllegalArgumentException.class,() ->{
            personService.save(personDto);
@@ -62,10 +73,6 @@ class PersonServiceTest {
     }
     @Test
     public void whenGetAllCalledWithoutAddressList_itShouldReturnPersonDtoList() throws Exception{
-        Person person = new Person();
-        person.setId(1L);
-        person.setName("Test-Name");
-        person.setLastname("Test-Lastname");
 
         when(personRepository.findAll()).thenReturn(Collections.singletonList(person));
         List<PersonDTO> personDTOList = personService.getAll();
@@ -74,11 +81,7 @@ class PersonServiceTest {
     }
     @Test
     public void whenGetAllCalled_itShouldReturnPersonDtoList() throws Exception{
-        Person person = new Person();
-        person.setId(1L);
-        person.setName("Test-Name");
-        person.setLastname("Test-Lastname");
-        person.setAddressList((Collections.singletonList(new Address(1L,  "Istanbul", Address.AddressType.HOME,  true))));
+
 
         when(personRepository.findAll()).thenReturn(Collections.singletonList(person));
         List<PersonDTO> personDTOList = personService.getAll();
@@ -89,15 +92,10 @@ class PersonServiceTest {
 
     @Test
     public void whenFindPersonByIdCalled_itShouldReturnPerson() throws Exception{
-        Long id = 1L;
-        Person person = new Person();
-        person.setId(id);
-        person.setName("Test-Name");
-        person.setLastname("Test-Lastname");
 
-        when(personRepository.findById(id)).thenReturn(Optional.of(person));
+        when(personRepository.findById(anyLong())).thenReturn(Optional.of(person));
 
-        Person result = personService.findPersonById(id);
+        Person result = personService.findPersonById(1L);
 
         assertEquals(result, person);
 
@@ -114,16 +112,10 @@ class PersonServiceTest {
 
     @Test
     public void whenGetByIdCalled_itShouldReturnPersonDto(){
-        Long id = 1L;
-        Person person = new Person();
-        person.setId(id);
-        person.setName("Test-Name");
-        person.setLastname("Test-Lastname");
 
+        when(personRepository.getById(anyLong())).thenReturn(person);
 
-        when(personRepository.getById(id)).thenReturn(person);
-
-        PersonDTO result = personService.getById(id);
+        PersonDTO result = personService.getById(1L);
 
         assertEquals(result.getId(), person.getId());
 
